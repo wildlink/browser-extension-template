@@ -1,0 +1,10 @@
+version: '3'
+services:
+  extension:
+    environment:
+      - NODE_ENV=local
+    build:
+      context: .
+      dockerfile: build/local/Dockerfile
+    volumes:
+      - .:/app
