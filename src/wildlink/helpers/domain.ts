@@ -79,7 +79,7 @@ export const getActiveDomain = async (
   }
 };
 
-export const startsWithHttp = (testString: string): boolean => {
+export const startsWithHttp = (testString = ''): boolean => {
   const protocol = testString.trim().slice(0, 4);
   return protocol === 'http';
 };
