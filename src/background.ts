@@ -23,6 +23,7 @@ import {
   Auth,
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
+import { startsWithHttp } from '/wildlink/helpers/domain';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -90,7 +91,7 @@ const init = async (): Promise<void> => {
    * browserAction is the icon next to the address bar
    */
   browser.browserAction.onClicked.addListener((tab) => {
-    if (tab.id) {
+    if (tab.id && startsWithHttp(tab.url)) {
       browser.tabs.sendMessage(tab.id, {
         status: TOGGLE_CONTENT,
       } as ExtensionMessage<typeof TOGGLE_CONTENT>);
@@ -103,7 +104,12 @@ const init = async (): Promise<void> => {
    */
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     // tab has finished loading and we can start doing things
-    if (changeInfo.status === 'complete' && tab.url && !isTemporaryTab[tabId]) {
+    if (
+      changeInfo.status === 'complete' &&
+      tab.url &&
+      startsWithHttp(tab.url) &&
+      !isTemporaryTab[tabId]
+    ) {
       handleTabLoaded(tabId, tab.url, wildlinkClient);
     }
   });
