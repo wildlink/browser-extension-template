@@ -21,6 +21,10 @@ import {
   ExternalResponseMessage,
   BackgroundResponseMessage,
   Auth,
+  DOM_CONTENT_LOADED,
+  PING,
+  PONG,
+  ContentResponseMessages,
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
@@ -100,17 +104,31 @@ const init = async (): Promise<void> => {
 
   /**
    * TABS: ON UPDATED
-   * how we check if a URL is eligible or not
+   * 1/2 ways we check if a URL is eligible or not
+   * we check here to handle if host is a SPA (DOM_CONTENT_LOADED fires only once)
    */
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-    // tab has finished loading and we can start doing things
     if (
-      changeInfo.status === 'complete' &&
+      changeInfo.status === 'loading' &&
       tab.url &&
       startsWithHttp(tab.url) &&
       !isTemporaryTab[tabId]
     ) {
-      handleTabLoaded(tabId, tab.url, wildlinkClient);
+      // check if content script has been injected
+      browser.tabs
+        .sendMessage(tabId, {
+          status: PING,
+        } as ExtensionMessage<typeof PING>)
+        .then((response: ContentResponseMessages<typeof PING>) => {
+          if (response.status === PONG) {
+            if (tab.url) {
+              handleTabLoaded(tabId, tab.url, wildlinkClient);
+            }
+          }
+        })
+        // receiving end does not exist: content script has not been injected
+        // do nothing and let DOM_CONTENT_LOADED handle
+        .catch((error) => error);
     }
   });
 
@@ -124,6 +142,14 @@ const init = async (): Promise<void> => {
       { tab },
     ): Promise<BackgroundResponseMessage<typeof message.status>> => {
       switch (message.status) {
+        // 2/2 ways we check if a URL is eligible or not
+        // we check here so we can show as soon as possible (when DOM is ready)
+        case DOM_CONTENT_LOADED: {
+          if (tab?.id && tab?.url) {
+            handleTabLoaded(tab.id, tab.url, wildlinkClient);
+          }
+          return;
+        }
         case GENERATE_VANITY: {
           const vanity = await wildlinkClient.generateVanity(
             message.payload.originalUrl,

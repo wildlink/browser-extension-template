@@ -87,6 +87,8 @@ If you are going to install dependencies during development, make sure you add t
 
 ### [`src/config.ts`](src/config.ts)
 - fill in the configurations specific to your application as provided by Wildlink
+- these credentials are not the same as your application credentials for use with our API
+  - make sure that you’ve asked your Wildfire Systems support rep to set up web bridge support
 
 ### Environment Files
 [.env.local](.env.local)

@@ -27,6 +27,7 @@ const Router: FC = () => {
 
         case NOT_ELIGIBLE: {
           setIsNotEligible(true);
+          return;
         }
       }
     });

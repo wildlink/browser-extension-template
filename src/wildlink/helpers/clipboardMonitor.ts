@@ -10,7 +10,6 @@ import { startsWithHttp, getActiveDomain } from '/wildlink/helpers/domain';
 import { clipboardReplacedNotification } from '/helpers/browser/notification';
 
 export default class ClipboardMonitor {
-  hashtag = 'ad';
   client: WildlinkClient;
   timer: SetIntervalAsyncTimer;
   undone: string;
