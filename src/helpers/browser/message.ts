@@ -15,6 +15,9 @@ export const CLEAR_STORAGE = 'CLEAR_STORAGE';
 export const GET_USER = 'GET_USER';
 export const SET_AUTH = 'SET_AUTH';
 export const SUCCESS = 'SUCCESS';
+export const DOM_CONTENT_LOADED = 'DOM_CONTENT_LOADED';
+export const PING = 'PING';
+export const PONG = 'PONG';
 
 interface NewTab {
   url: string;
@@ -34,6 +37,9 @@ type PayloadMap = {
   [GET_USER]: undefined;
   [SET_AUTH]: Auth;
   [SUCCESS]: undefined;
+  [DOM_CONTENT_LOADED]: undefined;
+  [PING]: undefined;
+  [PONG]: undefined;
 };
 
 interface Message<S, P> {
@@ -54,11 +60,13 @@ export type BackgroundMessage =
   | ExtensionMessage<typeof GENERATE_VANITY>
   | ExtensionMessage<typeof ACTIVATE_CASHBACK>
   | ExtensionMessage<typeof OPEN_TAB>
-  | ExtensionMessage<typeof RELOAD>;
+  | ExtensionMessage<typeof RELOAD>
+  | ExtensionMessage<typeof DOM_CONTENT_LOADED>;
 
 export type ContentMessage =
   | ExtensionMessage<typeof ELIGIBLE>
-  | ExtensionMessage<typeof NOT_ELIGIBLE>;
+  | ExtensionMessage<typeof NOT_ELIGIBLE>
+  | ExtensionMessage<typeof PING>;
 
 export type ExternalMessage =
   | ExtensionMessage<typeof CLEAR_STORAGE>
@@ -98,9 +106,10 @@ export type ExternalResponseMessage<S extends keyof ExternalResponseMap> =
 
 type BackgroundResponseMap = {
   [GENERATE_VANITY]: Message<typeof SUCCESS, Vanity>;
-  [OPEN_TAB]: SuccessMessage;
+  [OPEN_TAB]: undefined;
   [RELOAD]: undefined;
   [ACTIVATE_CASHBACK]: SuccessMessage | ErrorMessage;
+  [DOM_CONTENT_LOADED]: undefined;
 };
 
 export type BackgroundResponseMessage<S extends keyof BackgroundResponseMap> =
@@ -115,3 +124,13 @@ export const openTab = async (url: string): Promise<void> => {
     },
   } as ExtensionMessage<typeof OPEN_TAB>);
 };
+
+type ContentResponseMap = {
+  [ELIGIBLE]: undefined;
+  [NOT_ELIGIBLE]: undefined;
+  [PING]: ExtensionMessage<typeof PONG>;
+};
+
+export type ContentResponseMessages<
+  S extends keyof ContentResponseMap
+> = ContentResponseMap[S];

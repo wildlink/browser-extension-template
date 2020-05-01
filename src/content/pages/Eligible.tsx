@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useState, useEffect } from 'react';
 import { Vanity } from 'wildlink-js-client';
 import CSS from 'csstype';
 
@@ -61,6 +61,11 @@ const Eligible: FC<EligibleProps> = ({ eligibleDomain, showError }) => {
       showError();
     }
   };
+
+  // reset vanity if eligible domain original url changes
+  useEffect(() => {
+    setVanity(undefined);
+  }, [eligibleDomain.originalUrl]);
 
   return (
     <div style={style}>
