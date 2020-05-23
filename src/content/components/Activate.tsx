@@ -1,6 +1,5 @@
 import React, { FC, useState, useEffect } from 'react';
 import { Vanity, ActiveDomain } from 'wildlink-js-client';
-import getSymbolFromCurrency from 'currency-map-symbol';
 import CSS from 'csstype';
 
 import {
@@ -10,6 +9,7 @@ import {
   ERROR,
   BackgroundResponseMessage,
 } from '/helpers/browser/message';
+import { parseActiveDomainMaxRate } from '/helpers/activeDomain';
 
 import Button from './Button';
 
@@ -40,17 +40,7 @@ const Activate: FC<ActivateProps> = ({
   useEffect(() => {
     const { MaxRate } = activeDomain.Merchant;
     if (MaxRate) {
-      if (MaxRate.Kind === 'PERCENTAGE') {
-        setRate(`${MaxRate.Amount}%`);
-      } else if (MaxRate.Kind === 'FLAT') {
-        const currencySymbol: string | undefined = getSymbolFromCurrency(
-          MaxRate.Currency,
-        );
-        const flatRate = currencySymbol
-          ? `${currencySymbol}${MaxRate.Amount}`
-          : `${MaxRate.Amount} ${MaxRate.Currency}`;
-        setRate(flatRate);
-      }
+      setRate(parseActiveDomainMaxRate(MaxRate));
     }
   }, [activeDomain]);
 
