@@ -30,7 +30,6 @@
     "@fortawesome/react-fontawesome": "^0.1.9",
     "copy-to-clipboard": "^3.3.1",
     "csstype": "^2.6.9",
-    "currency-map-symbol": "^4.0.5",
     "parcel-bundler": "^1.12.4",
     "parcel-plugin-nuke-dist": "^1.0.1",
     "parcel-plugin-static-files-copy": "^2.3.1",
