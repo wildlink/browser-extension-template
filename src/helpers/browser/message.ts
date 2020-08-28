@@ -15,7 +15,7 @@ export const CLEAR_STORAGE = 'CLEAR_STORAGE';
 export const GET_USER = 'GET_USER';
 export const SET_AUTH = 'SET_AUTH';
 export const SUCCESS = 'SUCCESS';
-export const DOM_CONTENT_LOADED = 'DOM_CONTENT_LOADED';
+export const DOCUMENT_IDLE = 'DOCUMENT_IDLE';
 export const PING = 'PING';
 export const PONG = 'PONG';
 
@@ -37,7 +37,7 @@ type PayloadMap = {
   [GET_USER]: undefined;
   [SET_AUTH]: Auth;
   [SUCCESS]: undefined;
-  [DOM_CONTENT_LOADED]: undefined;
+  [DOCUMENT_IDLE]: undefined;
   [PING]: undefined;
   [PONG]: undefined;
 };
@@ -61,7 +61,7 @@ export type BackgroundMessage =
   | ExtensionMessage<typeof ACTIVATE_CASHBACK>
   | ExtensionMessage<typeof OPEN_TAB>
   | ExtensionMessage<typeof RELOAD>
-  | ExtensionMessage<typeof DOM_CONTENT_LOADED>;
+  | ExtensionMessage<typeof DOCUMENT_IDLE>;
 
 export type ContentMessage =
   | ExtensionMessage<typeof ELIGIBLE>
@@ -109,7 +109,7 @@ type BackgroundResponseMap = {
   [OPEN_TAB]: undefined;
   [RELOAD]: undefined;
   [ACTIVATE_CASHBACK]: SuccessMessage | ErrorMessage;
-  [DOM_CONTENT_LOADED]: undefined;
+  [DOCUMENT_IDLE]: undefined;
 };
 
 export type BackgroundResponseMessage<S extends keyof BackgroundResponseMap> =

@@ -1,19 +1,49 @@
 import { parseUrl } from 'query-string';
+import { getActiveDomain } from '/wildlink/helpers/domain';
+import { WildlinkClient } from 'wildlink-js-client';
+import { activeDomainLastSeen } from './browser/tab';
 
-// affiliated if any of these query parameter keys are present
-const targetQueryKeys = [
-  'ranEAID',
-  'ranMID',
-  'ranSiteID',
-  'LinkshareID',
-  'foid',
+export const CJ_AFF_URLS = [
+  'www.anrdoezrs.net',
+  'www.commission-junction.com',
+  'www.dpbolvw.net',
+  'www.apmebf.com',
+  'www.jdoqocy.com',
+  'www.kqzyfj.com',
+  'www.qksrv.net',
+  'www.tkqlhce.com',
+  'www.qksz.net',
+  'www.emjcd.com',
+  'www.afcyhf.com',
+  'www.awltovhc.com',
+  'www.ftjcfx.com',
+  'www.lduhtrp.net',
+  'www.tqlkg.com',
+  'www.awxibrm.com',
+  'www.cualbr.com',
+  'www.rnsfpw.net',
+  'www.vofzpwh.com',
+  'www.yceml.net',
+  'www.cj-dotomi.com',
 ];
 
-// affiliated if any of these query parameters (key and value) are present together
+export const handleCJRedirect = async (
+  redirectUrl: string,
+  wildlinkClient: WildlinkClient,
+): Promise<void> => {
+  const activeDomain = await getActiveDomain(redirectUrl, wildlinkClient);
+  if (activeDomain) {
+    const now = Date.now();
+    activeDomainLastSeen[activeDomain.Domain] = now;
+  }
+};
+
+// affiliated if any of these query parameter keys are present
+const targetQueryKeys = ['foid'];
+
+// affiliated if any of these query parameters are present where key=value
 // value must be a string - parseUrl returns strings
 const targetQueryParams: { [queryKey: string]: string } = {
-  PartnerID: 'LINKSHARE',
-  utm_medium: 'affiliate',
   afsrc: '1',
   affsource: '1',
 };

@@ -21,13 +21,14 @@ import {
   ExternalResponseMessage,
   BackgroundResponseMessage,
   Auth,
-  DOM_CONTENT_LOADED,
+  DOCUMENT_IDLE,
   PING,
   PONG,
   ContentResponseMessages,
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
+import { CJ_AFF_URLS, handleCJRedirect } from './helpers/affiliate';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -65,7 +66,10 @@ const init = async (): Promise<void> => {
           await browser.storage.local.clear();
           // reset the client
           wildlinkClient = await initWildlink();
-          return Promise.resolve({ status: SUCCESS, payload: undefined });
+          return Promise.resolve({
+            status: SUCCESS,
+            payload: undefined,
+          });
         }
         case GET_USER: {
           const storage = await browser.storage.local.get(['device', 'auth']);
@@ -79,12 +83,17 @@ const init = async (): Promise<void> => {
         case SET_AUTH: {
           const auth = message.payload;
           await browser.storage.local.set({ auth });
-          return Promise.resolve({ status: SUCCESS, payload: undefined });
+          return Promise.resolve({
+            status: SUCCESS,
+            payload: undefined,
+          });
         }
         default:
           return Promise.resolve({
             status: ERROR,
-            payload: { detail: 'unhandled message' },
+            payload: {
+              detail: 'unhandled message',
+            },
           });
       }
     },
@@ -105,7 +114,7 @@ const init = async (): Promise<void> => {
   /**
    * TABS: ON UPDATED
    * 1/2 ways we check if a URL is eligible or not
-   * we check here to handle if host is a SPA (DOM_CONTENT_LOADED fires only once)
+   * we check here to handle if host is a SPA (DOCUMENT_IDLE fires only once)
    */
   browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (
@@ -127,7 +136,7 @@ const init = async (): Promise<void> => {
           }
         })
         // receiving end does not exist: content script has not been injected
-        // do nothing and let DOM_CONTENT_LOADED handle
+        // do nothing and let DOCUMENT_IDLE handle
         .catch((error) => error);
     }
   });
@@ -144,7 +153,7 @@ const init = async (): Promise<void> => {
       switch (message.status) {
         // 2/2 ways we check if a URL is eligible or not
         // we check here so we can show as soon as possible (when DOM is ready)
-        case DOM_CONTENT_LOADED: {
+        case DOCUMENT_IDLE: {
           if (tab?.id && tab?.url) {
             handleTabLoaded(tab.id, tab.url, wildlinkClient);
           }
@@ -157,7 +166,10 @@ const init = async (): Promise<void> => {
             `extension-template-share_${config.appId}`,
           );
           // return a promise to send a message back
-          return Promise.resolve({ status: SUCCESS, payload: vanity });
+          return Promise.resolve({
+            status: SUCCESS,
+            payload: vanity,
+          });
         }
         case OPEN_TAB: {
           browser.tabs.create({
@@ -185,7 +197,12 @@ const init = async (): Promise<void> => {
               // if it takes longer than 10 seconds, return an error
               setTimeout(
                 () =>
-                  resolve({ status: ERROR, payload: { detail: 'timeout' } }),
+                  resolve({
+                    status: ERROR,
+                    payload: {
+                      detail: 'timeout',
+                    },
+                  }),
                 10000,
               );
               // cleanup after the background tab is finished
@@ -193,7 +210,10 @@ const init = async (): Promise<void> => {
                 browser.tabs.onUpdated.removeListener(listener);
                 browser.tabs.remove(newTab.id);
                 delete isTemporaryTab[newTab.id];
-                resolve({ status: SUCCESS, payload: undefined });
+                resolve({
+                  status: SUCCESS,
+                  payload: undefined,
+                });
               }
             });
           });
@@ -219,7 +239,9 @@ const init = async (): Promise<void> => {
         default:
           return Promise.resolve({
             status: ERROR,
-            payload: { detail: 'unhandled message' },
+            payload: {
+              detail: 'unhandled message',
+            },
           });
       }
     },
@@ -238,6 +260,18 @@ const init = async (): Promise<void> => {
         `http://*.${config.vanityBase}/*`,
         `https://*.${config.vanityBase}/*`,
       ],
+    },
+  );
+
+  /**
+   * watch for affiliate urls and stand down
+   */
+  browser.webRequest.onBeforeRedirect.addListener(
+    (details) => {
+      handleCJRedirect(details.redirectUrl, wildlinkClient);
+    },
+    {
+      urls: CJ_AFF_URLS.map((url) => `*://${url}/*`),
     },
   );
 };

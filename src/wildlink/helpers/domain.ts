@@ -64,18 +64,25 @@ export const getActiveDomain = async (
   url: string,
   client: WildlinkClient,
 ): Promise<ActiveDomain | undefined> => {
-  const domains = parseDomain(url);
-  const activeDomains = await client.getDomains();
-  for (let i = 0; i < activeDomains.length; i++) {
-    if (domains.includes(activeDomains[i].Domain)) {
-      const activeDomain = activeDomains[i];
-      // check blacklist
-      const blacklisted = await isBlacklistDomain(activeDomain.Domain);
-      if (blacklisted) {
-        return undefined;
+  try {
+    const domains = parseDomain(url);
+    const activeDomains = await client.getDomains();
+    // this is a heavy operation and you should optimize accordingly
+    for (let i = 0; i < domains.length; i++) {
+      for (let j = 0; j < activeDomains.length; j++) {
+        if (domains[i] === activeDomains[j].Domain) {
+          const activeDomain = activeDomains[j];
+          // check blacklist
+          const blacklisted = await isBlacklistDomain(activeDomain.Domain);
+          if (blacklisted) {
+            return;
+          }
+          return activeDomain;
+        }
       }
-      return activeDomain;
     }
+  } catch (error) {
+    return;
   }
 };
 
