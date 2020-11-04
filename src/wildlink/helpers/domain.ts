@@ -6,6 +6,7 @@ import api from '/helpers/api';
 export interface EligibleDomain {
   activeDomain: ActiveDomain;
   originalUrl: string;
+  isCashbackActivatedAlready: boolean;
 }
 
 export const parseDomain = (url: string): string[] => {

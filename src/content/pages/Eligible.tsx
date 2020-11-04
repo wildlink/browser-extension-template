@@ -62,10 +62,12 @@ const Eligible: FC<EligibleProps> = ({ eligibleDomain, showError }) => {
     }
   };
 
-  // reset vanity if eligible domain original url changes
+  // reset vanity if eligible domain original url changes and domain is different
   useEffect(() => {
-    setVanity(undefined);
-  }, [eligibleDomain.originalUrl]);
+    if (!eligibleDomain.isCashbackActivatedAlready) {
+      setVanity(undefined);
+    }
+  }, [eligibleDomain]);
 
   return (
     <div style={style}>
@@ -74,6 +76,7 @@ const Eligible: FC<EligibleProps> = ({ eligibleDomain, showError }) => {
         <Activate
           getVanity={getVanity}
           activeDomain={eligibleDomain.activeDomain}
+          isCashbackActivatedAlready={eligibleDomain.isCashbackActivatedAlready}
           showError={showError}
         />
         <div style={orStyle}>or</div>

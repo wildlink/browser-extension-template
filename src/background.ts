@@ -29,6 +29,7 @@ import {
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
 import { CJ_AFF_URLS, handleCJRedirect } from './helpers/affiliate';
+import { rememberTabAndDomain, removeRememberedTabAndDomain } from './helpers/activeDomain';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -108,6 +109,18 @@ const init = async (): Promise<void> => {
       browser.tabs.sendMessage(tab.id, {
         status: TOGGLE_CONTENT,
       } as ExtensionMessage<typeof TOGGLE_CONTENT>);
+    }
+  });
+
+  /**
+   * TABS: ON REMOVED
+   * remove remembered domain when we close the tab
+   */
+  browser.tabs.onRemoved.addListener((tabId) => {
+    try {
+      removeRememberedTabAndDomain(tabId);
+    } catch (error) {
+      console.log(error);
     }
   });
 
@@ -210,6 +223,9 @@ const init = async (): Promise<void> => {
                 browser.tabs.onUpdated.removeListener(listener);
                 browser.tabs.remove(newTab.id);
                 delete isTemporaryTab[newTab.id];
+                // remember activated state for that domain
+                const domainForRemember = message.payload.domain;
+                rememberTabAndDomain(domainForRemember, tab?.id);
                 resolve({
                   status: SUCCESS,
                   payload: undefined,

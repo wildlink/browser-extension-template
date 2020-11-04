@@ -21,6 +21,7 @@ export const PONG = 'PONG';
 
 interface NewTab {
   url: string;
+  domain: string;
 }
 
 type PayloadMap = {

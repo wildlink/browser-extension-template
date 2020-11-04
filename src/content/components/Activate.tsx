@@ -24,12 +24,14 @@ const activateButtonStyle: CSS.Properties = {
 
 interface ActivateProps {
   activeDomain: ActiveDomain;
+  isCashbackActivatedAlready: boolean;
   getVanity: () => Promise<Vanity | undefined>;
   showError: () => void;
 }
 
 const Activate: FC<ActivateProps> = ({
   activeDomain,
+  isCashbackActivatedAlready,
   getVanity,
   showError,
 }) => {
@@ -44,6 +46,13 @@ const Activate: FC<ActivateProps> = ({
     }
   }, [activeDomain]);
 
+  useEffect(() => {
+    // set isActive automatically if domain is the the same with the last stored domain
+    if (isCashbackActivatedAlready && !isActive) {
+      setIsActive(true);
+    }
+  }, [activeDomain.Domain, isCashbackActivatedAlready, isActive]);
+
   const activate = async (): Promise<void> => {
     setIsLoading(true);
     const vanity = await getVanity();
@@ -52,6 +61,7 @@ const Activate: FC<ActivateProps> = ({
         status: ACTIVATE_CASHBACK,
         payload: {
           url: vanity.VanityURL,
+          domain: activeDomain.Domain,
         },
       } as ExtensionMessage<typeof ACTIVATE_CASHBACK>)) as BackgroundResponseMessage<
         typeof ACTIVATE_CASHBACK

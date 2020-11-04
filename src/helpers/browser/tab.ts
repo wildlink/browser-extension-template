@@ -1,6 +1,11 @@
 import { WildlinkClient } from 'wildlink-js-client';
 
 import { getActiveDomain } from '/wildlink/helpers/domain';
+import {
+  isCashbackActivated,
+  rememberTabAndDomain,
+  removeRememberedTabAndDomain,
+} from '/helpers/activeDomain';
 import { isAffiliateUrl } from '/helpers/affiliate';
 import {
   ELIGIBLE,
@@ -28,11 +33,20 @@ export const handleTabLoaded = async (
   const activeDomain = await getActiveDomain(tabUrl, wildlinkClient);
 
   if (activeDomain) {
+    const isCashbackActivatedAlready = isCashbackActivated(activeDomain.Domain);
+
+    if (isCashbackActivatedAlready) {
+      rememberTabAndDomain(activeDomain.Domain, tabId);
+    } else {
+      removeRememberedTabAndDomain(tabId);
+    }
+
     await browser.tabs.sendMessage(tabId, {
       status: ELIGIBLE,
       payload: {
         activeDomain,
         originalUrl: tabUrl,
+        isCashbackActivatedAlready,
       },
     } as ExtensionMessage<typeof ELIGIBLE>);
 
@@ -62,6 +76,7 @@ export const handleTabLoaded = async (
       activeDomainLastSeen[activeDomain.Domain] = now;
     }
   } else {
+    removeRememberedTabAndDomain(tabId);
     browser.tabs.sendMessage(tabId, {
       status: NOT_ELIGIBLE,
     } as ExtensionMessage<typeof NOT_ELIGIBLE>);

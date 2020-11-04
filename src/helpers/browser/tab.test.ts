@@ -75,6 +75,7 @@ describe('evaluate whether or not a tab is eligible', () => {
       payload: {
         activeDomain: exampleActiveDomain,
         originalUrl: tabUrl,
+        isCashbackActivatedAlready: false,
       },
     });
     expect(mockSendMessage).toHaveBeenLastCalledWith(tabId, {
@@ -93,6 +94,7 @@ describe('evaluate whether or not a tab is eligible', () => {
       payload: {
         activeDomain: exampleActiveDomain,
         originalUrl: tabUrl,
+        isCashbackActivatedAlready: false,
       },
     });
     expect(mockSendMessage).toBeCalledTimes(1);
