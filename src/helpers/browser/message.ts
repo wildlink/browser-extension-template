@@ -1,4 +1,4 @@
-import { Device, Vanity } from 'wildlink-js-client';
+import { ActiveDomain, Device, Vanity } from 'wildlink-js-client';
 
 import { EligibleDomain } from '/wildlink/helpers/domain';
 
@@ -21,7 +21,7 @@ export const PONG = 'PONG';
 
 interface NewTab {
   url: string;
-  domain: string;
+  domain: ActiveDomain['Domain'];
 }
 
 type PayloadMap = {

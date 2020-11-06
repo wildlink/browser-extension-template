@@ -1,7 +1,5 @@
 import { ActiveDomain } from 'wildlink-js-client';
 
-export const REMEMBERED_DOMAINS = 'REMEMBERED_DOMAINS';
-
 export const rememberedDomains: {
   [key: string]: string;
 } = {};
