@@ -5,13 +5,14 @@
   "author": "Vincent Pham <vincentvpham@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "test": "yarn tsc && jest",
+    "test": "yarn tsc && yarn lint && jest",
     "tsc": "tsc --noEmit",
     "start": "NODE_ENV=local parcel watch src/background.ts src/content.ts --no-hmr",
     "build:dev": "NODE_ENV=development parcel build src/background.ts src/content.ts --no-source-maps --no-cache",
     "build:prod": "NODE_ENV=production parcel build src/background.ts src/content.ts --no-source-maps --no-cache",
     "build": "parcel build src/background.ts src/content.ts --no-source-maps --no-cache && yarn zip",
-    "zip": "./zip.sh"
+    "zip": "./zip.sh",
+    "lint": "yarn eslint 'src/**/*.{ts,tsx}'"
   },
   "staticFiles": {
     "staticPath": [
