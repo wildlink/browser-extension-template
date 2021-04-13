@@ -26,8 +26,6 @@ Template to create a browser extension to earn on eligible URLs. Powered by [Wil
 
 ### Browser Extension
 
-![browser extension diagram](https://developer.chrome.com/static/images/overview/messagingarc.png)
-
 The above diagram is a good visualization of how browser extensions work and you can find more information [here](https://developer.chrome.com/extensions/overview).
 
 - **Background Script**: event handler for the extension
@@ -60,8 +58,6 @@ Icons that appear next to the address bar and in notifications are not injected 
 1. __Load unpacked__ and select the `dist` folder from the root directory
 1. The local development version is now installed on Chrome and is watching for changes for automatic reload
 
-![installing a development chrome extension](https://developer.chrome.com/static/images/get_started/load_extension.png)
-
 #### Dependencies
 
 If you are going to install dependencies during development, make sure you add them from **inside** the docker container:
@@ -75,13 +71,9 @@ If you are going to install dependencies during development, make sure you add t
 
 - You can debug the background script via the background page console
 
-[![debugging a chrome extension](https://developer.chrome.com/static/images/debugging/inspect_views_background.png)](https://developer.chrome.com/extensions/tut_debugging#debug_bg)
-
 #### [Content Script](#browser-extension)
 
 - You can debug the content script via the console of the webpage the extension is injected into
-
-[![debugging a content script](https://developer.chrome.com/static/images/debugging/content_script_error.png)](https://developer.chrome.com/extensions/tut_debugging#debug_cs)
 
 ## Setup
 
