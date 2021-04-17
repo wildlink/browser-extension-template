@@ -28,7 +28,10 @@ import {
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
-import { CJ_AFF_URLS, handleCJRedirect } from './helpers/affiliate';
+import {
+  handleAffiliateRequest,
+  handleAffiliateStandDown,
+} from './helpers/affiliate';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -268,12 +271,18 @@ const init = async (): Promise<void> => {
    */
   browser.webRequest.onBeforeRedirect.addListener(
     (details) => {
-      handleCJRedirect(details.redirectUrl, wildlinkClient);
+      handleAffiliateStandDown(details, wildlinkClient);
     },
     {
-      urls: CJ_AFF_URLS.map((url) => `*://${url}/*`),
+      urls: ['<all_urls>'],
+      types: ['main_frame', 'sub_frame'],
     },
   );
+
+  browser.webRequest.onBeforeRequest.addListener(handleAffiliateRequest, {
+    urls: ['<all_urls>'],
+    types: ['main_frame', 'sub_frame'],
+  });
 };
 
 (async (): Promise<void> => {
