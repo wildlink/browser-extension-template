@@ -10,7 +10,7 @@ import {
   BackgroundResponseMessage,
 } from '/helpers/browser/message';
 import { parseActiveDomainMaxRate } from '/helpers/activeDomain';
-
+import { isCashbackActivated } from '../helpers';
 import Button from './Button';
 
 const style: CSS.Properties = {
@@ -43,7 +43,14 @@ const Activate: FC<ActivateProps> = ({
       setRate(parseActiveDomainMaxRate(MaxRate));
     }
   }, [activeDomain]);
-
+  useEffect(() => {
+    // set isActive automatically if domain is the the same with the last stored domain
+    isCashbackActivated(activeDomain).then((result) => {
+      if (result && !isActive) {
+        setIsActive(true);
+      }
+    });
+  }, [activeDomain.Domain, isActive]);
   const activate = async (): Promise<void> => {
     setIsLoading(true);
     const vanity = await getVanity();
@@ -52,6 +59,7 @@ const Activate: FC<ActivateProps> = ({
         status: ACTIVATE_CASHBACK,
         payload: {
           url: vanity.VanityURL,
+          domain: activeDomain.Domain,
         },
       } as ExtensionMessage<typeof ACTIVATE_CASHBACK>)) as BackgroundResponseMessage<
         typeof ACTIVATE_CASHBACK

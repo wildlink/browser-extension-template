@@ -25,6 +25,7 @@ import {
   PING,
   PONG,
   ContentResponseMessages,
+  IS_CASHBACK_ACTIVATED,
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
@@ -32,6 +33,11 @@ import {
   handleAffiliateRequest,
   handleAffiliateStandDown,
 } from './helpers/affiliate';
+import {
+  storeCashbackActivatedDomain,
+  deleteCashbackActivatedDomain,
+  isCashbackActivated,
+} from './helpers/activeDomain';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -144,6 +150,10 @@ const init = async (): Promise<void> => {
     }
   });
 
+  browser.tabs.onRemoved.addListener((tabId) => {
+    deleteCashbackActivatedDomain(tabId);
+  });
+
   /**
    * ON MESSAGE
    * comes from the content script embedded in the page
@@ -212,6 +222,7 @@ const init = async (): Promise<void> => {
               if (changeInfo.status === 'complete' && tabId === newTab.id) {
                 browser.tabs.onUpdated.removeListener(listener);
                 browser.tabs.remove(newTab.id);
+                storeCashbackActivatedDomain(message.payload.domain, tab?.id);
                 delete isTemporaryTab[newTab.id];
                 resolve({
                   status: SUCCESS,
@@ -220,6 +231,9 @@ const init = async (): Promise<void> => {
               }
             });
           });
+        }
+        case IS_CASHBACK_ACTIVATED: {
+          return isCashbackActivated(message.payload.Domain);
         }
         case RELOAD: {
           if (tab?.id) {
