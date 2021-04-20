@@ -1,7 +1,7 @@
 import { WildlinkClient } from 'wildlink-js-client';
 
 import { getActiveDomain } from '/wildlink/helpers/domain';
-import { isAffiliateUrl } from '/helpers/affiliate';
+import { hasAffiliateParams } from '/helpers/affiliate';
 import {
   ELIGIBLE,
   ExtensionMessage,
@@ -44,8 +44,11 @@ export const handleTabLoaded = async (
 
     const now = Date.now();
 
-    // if already affiliated stand down for the next hour
-    if (isAffiliateUrl(tabUrl)) {
+    /*
+      If the url contains a query parameter that belongs to one of our affiliates
+      we are required to stand down. So we will stand down and not do anything.
+    */
+    if (hasAffiliateParams(tabUrl)) {
       activeDomainLastSeen[activeDomain.Domain] = now;
       return;
     }

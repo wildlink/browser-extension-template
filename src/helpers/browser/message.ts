@@ -1,4 +1,4 @@
-import { Device, Vanity } from 'wildlink-js-client';
+import { ActiveDomain, Device, Vanity } from 'wildlink-js-client';
 
 import { EligibleDomain } from '/wildlink/helpers/domain';
 
@@ -18,9 +18,11 @@ export const SUCCESS = 'SUCCESS';
 export const DOCUMENT_IDLE = 'DOCUMENT_IDLE';
 export const PING = 'PING';
 export const PONG = 'PONG';
+export const IS_CASHBACK_ACTIVATED = 'IS_CASHBACK_ACTIVATED';
 
 interface NewTab {
   url: string;
+  domain: string;
 }
 
 type PayloadMap = {
@@ -29,6 +31,7 @@ type PayloadMap = {
   [ELIGIBLE]: EligibleDomain;
   [NOT_ELIGIBLE]: undefined;
   [GENERATE_VANITY]: EligibleDomain;
+  [IS_CASHBACK_ACTIVATED]: ActiveDomain;
   [ACTIVATE_CASHBACK]: NewTab;
   [OPEN_TAB]: NewTab;
   [ERROR]: undefined;
@@ -59,6 +62,7 @@ export type ContentDisplayMessage =
 export type BackgroundMessage =
   | ExtensionMessage<typeof GENERATE_VANITY>
   | ExtensionMessage<typeof ACTIVATE_CASHBACK>
+  | ExtensionMessage<typeof IS_CASHBACK_ACTIVATED>
   | ExtensionMessage<typeof OPEN_TAB>
   | ExtensionMessage<typeof RELOAD>
   | ExtensionMessage<typeof DOCUMENT_IDLE>;
@@ -108,6 +112,7 @@ type BackgroundResponseMap = {
   [GENERATE_VANITY]: Message<typeof SUCCESS, Vanity>;
   [OPEN_TAB]: undefined;
   [RELOAD]: undefined;
+  [IS_CASHBACK_ACTIVATED]: boolean;
   [ACTIVATE_CASHBACK]: SuccessMessage | ErrorMessage;
   [DOCUMENT_IDLE]: undefined;
 };

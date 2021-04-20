@@ -13,6 +13,7 @@ import {
 import Logo from '/content/components/Logo';
 import Activate from '/content/components/Activate';
 import Share from '/content/components/Share/Share';
+import { isCashbackActivated } from '../helpers';
 
 const style: CSS.Properties = {
   display: 'flex',
@@ -64,8 +65,12 @@ const Eligible: FC<EligibleProps> = ({ eligibleDomain, showError }) => {
 
   // reset vanity if eligible domain original url changes
   useEffect(() => {
-    setVanity(undefined);
-  }, [eligibleDomain.originalUrl]);
+    isCashbackActivated(eligibleDomain.activeDomain).then((result) => {
+      if (!result) {
+        setVanity(undefined);
+      }
+    });
+  }, [eligibleDomain.activeDomain.Domain]);
 
   return (
     <div style={style}>

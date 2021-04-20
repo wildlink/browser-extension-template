@@ -25,10 +25,19 @@ import {
   PING,
   PONG,
   ContentResponseMessages,
+  IS_CASHBACK_ACTIVATED,
 } from '/helpers/browser/message';
 import { handleTabLoaded, setVanityRedirectTab } from '/helpers/browser/tab';
 import { startsWithHttp } from '/wildlink/helpers/domain';
-import { CJ_AFF_URLS, handleCJRedirect } from './helpers/affiliate';
+import {
+  handleAffiliateRequest,
+  handleAffiliateStandDown,
+} from './helpers/affiliate';
+import {
+  storeCashbackActivatedDomain,
+  deleteCashbackActivatedDomain,
+  isCashbackActivated,
+} from './helpers/activeDomain';
 
 if (process.env.NODE_ENV === 'local') {
   // hot reloads content script including the page
@@ -141,6 +150,10 @@ const init = async (): Promise<void> => {
     }
   });
 
+  browser.tabs.onRemoved.addListener((tabId) => {
+    deleteCashbackActivatedDomain(tabId);
+  });
+
   /**
    * ON MESSAGE
    * comes from the content script embedded in the page
@@ -209,6 +222,7 @@ const init = async (): Promise<void> => {
               if (changeInfo.status === 'complete' && tabId === newTab.id) {
                 browser.tabs.onUpdated.removeListener(listener);
                 browser.tabs.remove(newTab.id);
+                storeCashbackActivatedDomain(message.payload.domain, tab?.id);
                 delete isTemporaryTab[newTab.id];
                 resolve({
                   status: SUCCESS,
@@ -217,6 +231,9 @@ const init = async (): Promise<void> => {
               }
             });
           });
+        }
+        case IS_CASHBACK_ACTIVATED: {
+          return isCashbackActivated(message.payload.Domain);
         }
         case RELOAD: {
           if (tab?.id) {
@@ -268,12 +285,18 @@ const init = async (): Promise<void> => {
    */
   browser.webRequest.onBeforeRedirect.addListener(
     (details) => {
-      handleCJRedirect(details.redirectUrl, wildlinkClient);
+      handleAffiliateStandDown(details, wildlinkClient);
     },
     {
-      urls: CJ_AFF_URLS.map((url) => `*://${url}/*`),
+      urls: ['<all_urls>'],
+      types: ['main_frame', 'sub_frame'],
     },
   );
+
+  browser.webRequest.onBeforeRequest.addListener(handleAffiliateRequest, {
+    urls: ['<all_urls>'],
+    types: ['main_frame', 'sub_frame'],
+  });
 };
 
 (async (): Promise<void> => {
